@@ -2,6 +2,8 @@ LICENSE
 pyproject.toml
 autobot/__init__.py
 autobot/_bot.py
+autobot/_tree.py
+autobot/command.py
 discord_autobot.egg-info/PKG-INFO
 discord_autobot.egg-info/SOURCES.txt
 discord_autobot.egg-info/dependency_links.txt

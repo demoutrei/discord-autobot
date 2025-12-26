@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: discord-autobot
-Version: 0.0.1
+Version: 0.1.0
 License-File: LICENSE
 Requires-Dist: discord.py
 Dynamic: license-file
