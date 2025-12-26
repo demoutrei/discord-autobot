@@ -1,4 +1,5 @@
 LICENSE
+README.md
 pyproject.toml
 autobot/__init__.py
 autobot/_bot.py
