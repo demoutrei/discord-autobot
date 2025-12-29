@@ -1,4 +1,5 @@
 from .command import AutomodCommand
+from collections.abc import Coroutine
 from datetime import timedelta
 from discord import AutoModRule, AutoModRuleAction, AutoModRuleEventType, AutoModRuleTriggerType, AutoModTrigger, Guild, NotFound
 from discord.ext.commands import Bot
@@ -17,6 +18,15 @@ class AutomodTree:
     if not isinstance(command, AutomodCommand): raise TypeError(f"command: Must be an instance of {AutomodCommand.__name__}; not {command.__class__.__name__}")
     if command.keyword in self.__command_map: raise ValueError(f"command: Command with keyword {command.keyword!r} already exists")
     self.__command_map[command.keyword]: AutomodCommand = command
+
+
+  def command(self: Self, trigger: str, *, name: Optional[str] = None) -> AutomodCommand:
+    def wrapper(function: Coroutine) -> AutomodCommand:
+      command_name: str = name or function.__name__
+      command: AutomodCommand = AutomodCommand(name = command_name, callback = function, trigger = trigger)
+      self.add_command(command)
+      return command
+    return wrapper
 
 
   async def disable(self: Self, command: AutomodCommand, *, guild: Guild) -> None:

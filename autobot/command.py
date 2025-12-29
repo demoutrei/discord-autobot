@@ -23,24 +23,24 @@ class AutomodCommand:
     await self.callback(**args)
   
   
-  def __init__(self: Self, *, name: str, callback: Coroutine, keyword: str) -> None:
+  def __init__(self: Self, *, name: str, callback: Coroutine, trigger: str) -> None:
     if not isinstance(name, str): raise TypeError(f"name: Must be an instance of {str.__name__}; not {name.__class__.__name__}")
     if not name.strip(): raise ValueError("name: Must not be an empty string")
     if not iscoroutinefunction(callback): raise TypeError(f"callback: Must be a coroutine")
-    if not isinstance(keyword, str): raise TypeError(f"keyword: Must be an instance of {str.__name__}; not {keyword.__class__.__name__}")
-    if not keyword.strip(): raise ValueError(f"keyword: Must not be an empty string")
-    keyword: str = keyword.strip()
-    if 60 < len(keyword): raise ValueError(f"keyword: Can only be up to 60 characters in length")
-    self.__keyword: str = keyword
+    if not isinstance(trigger, str): raise TypeError(f"trigger: Must be an instance of {str.__name__}; not {trigger.__class__.__name__}")
+    if not trigger.strip(): raise ValueError(f"trigger: Must not be an empty string")
+    trigger: str = trigger.strip()
+    if 60 < len(trigger): raise ValueError(f"trigger: Can only be up to 60 characters in length")
+    self.__trigger: str = trigger
     self.__name: str = name
     self.callback: Coroutine = callback
 
 
   @property
-  def keyword(self: Self) -> str:
-    return self.__keyword
+  def name(self: Self) -> str:
+    return self.__name
 
 
   @property
-  def name(self: Self) -> str:
-    return self.__name
+  def trigger(self: Self) -> str:
+    return self.__trigger
