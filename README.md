@@ -3,7 +3,7 @@
 ### Example code:
 ```py
 from asyncio import run as async_run
-from autobot import AutoBot
+from autobot import AutoBot, TriggerType
 from discord import GuildChannel, Intents
 from discord.ext.commands import Context
 from dotenv import load_dotenv
@@ -12,10 +12,15 @@ from os import get_env
 
 bot: AutoBot = AutoBot(command_prefix = "test.", intents = Intents.default())
 
-# Automod Command Registration
+# Keyword-trigger type command
 @bot.automod("!ping")
 async def ping(channel: GuildChannel) -> None:
   await channel.send("Pong!")
+
+# Regex-trigger type command
+@bot.automod("*", trigger_type = TriggerType.regex)
+async def ban(member: Member) -> None:
+  await member.ban()
 
 # Automod Command Toggle
 @bot.command()
