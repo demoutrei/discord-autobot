@@ -71,7 +71,8 @@ class AutomodTree:
         event_type = AutoModRuleEventType.message_send,
         trigger = AutoModTrigger(
           type = AutoModRuleTriggerType.keyword,
-          keyword_filter = [command.trigger for command in commands]
+          keyword_filter = [command.trigger for command in commands if command.trigger_type is TriggerType.keyword],
+          regex_patterns = [command.trigger for command in commands if command.trigger_type is TriggerType.regex]
         ),
         actions = [
           AutoModRuleAction(
@@ -82,12 +83,15 @@ class AutomodTree:
         reason = "Autobot automod commands"
       )
       self.__rule_id_map[guild.id]: int = rule.id
+    elif 10 < (len(rule.trigger.regex_patterns) + len([command for command in commands if command.trigger_type is TriggerType.regex])): raise ValueError("commands: Maximum of 10 active regex patterns")
     if active:
       trigger: AutoModTrigger = AutoModTrigger(
-        keyword_filter = [keyword for keyword in rule.trigger.keyword_filter] + [command.trigger for command in commands if command.trigger not in rule.trigger.keyword_filter]
+        keyword_filter = [keyword for keyword in rule.trigger.keyword_filter] + [command.trigger for command in commands if command.trigger_type is TriggerType.keyword and command.trigger not in rule.trigger.keyword_filter],
+        regex_patterns = [pattern for pattern in rule.trigger.regex_patterns] + [command.trigger for command in commands if command.trigger_type is TriggerType.regex and command.trigger not in rule.trigger.regex_patterns]
       )
     else:
       trigger: AutoModTrigger = AutoModTrigger(
-        keyword_filter = [keyword for keyword in rule.trigger.keyword_filter if keyword not in [command.trigger for command in commands]]
+        keyword_filter = [keyword for keyword in rule.trigger.keyword_filter if keyword not in [command.trigger for command in commands if command.trigger_type is TriggerType.keyword]],
+        regex_patterns = [pattern for pattern in rule.trigger.regex_patterns if pattern not in [command.trigger for command in commands if command.trigger_type is TriggerType.regex]]
       )
     await rule.edit(trigger = trigger)

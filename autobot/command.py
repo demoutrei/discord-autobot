@@ -31,8 +31,12 @@ class AutomodCommand:
     if not isinstance(trigger, str): raise TypeError(f"trigger: Must be an instance of {str.__name__}; not {trigger.__class__.__name__}")
     if not trigger.strip(): raise ValueError(f"trigger: Must not be an empty string")
     trigger: str = trigger.strip()
-    if 60 < len(trigger): raise ValueError(f"trigger: Can only be up to 60 characters in length")
     if not isinstance(trigger_type, TriggerType): raise TypeError(f"type: Must be an instance of {TriggerType.__name__}; not {trigger_type.__class__.__name__}")
+    match trigger_type.__class__:
+      case TriggerType.keyword:
+        if 60 < len(trigger): raise ValueError(f"trigger: Can only be up to 60 characters in length")
+      case TriggerType.regex:
+        if 260 < len(trigger): raise ValueError(f"trigger: Can only be up to 260 characters in length")
     self.__name: str = name
     self.__trigger: str = trigger
     self.__trigger_type: TriggerType = trigger_type
