@@ -1,4 +1,5 @@
 from .command import AutomodCommand
+from .enums import TriggerType
 from collections.abc import Coroutine
 from datetime import timedelta
 from discord import AutoModRule, AutoModRuleAction, AutoModRuleEventType, AutoModRuleTriggerType, AutoModTrigger, Guild, NotFound
@@ -16,14 +17,14 @@ class AutomodTree:
 
   def add_command(self: Self, command: AutomodCommand) -> None:
     if not isinstance(command, AutomodCommand): raise TypeError(f"command: Must be an instance of {AutomodCommand.__name__}; not {command.__class__.__name__}")
-    if command.keyword in self.__command_map: raise ValueError(f"command: Command with keyword {command.keyword!r} already exists")
-    self.__command_map[command.keyword]: AutomodCommand = command
+    if command.trigger in self.__command_map: raise ValueError(f"command: Command with keyword {command.trigger!r} already exists")
+    self.__command_map[command.trigger]: AutomodCommand = command
 
 
-  def command(self: Self, trigger: str, *, name: Optional[str] = None) -> AutomodCommand:
+  def command(self: Self, trigger: str, *, name: Optional[str] = None, trigger_ype: TriggerType = TriggerType.keyword) -> AutomodCommand:
     def wrapper(function: Coroutine) -> AutomodCommand:
       command_name: str = name or function.__name__
-      command: AutomodCommand = AutomodCommand(name = command_name, callback = function, trigger = trigger)
+      command: AutomodCommand = AutomodCommand(name = command_name, callback = function, trigger = trigger, trigger_type = trigger_type)
       self.add_command(command)
       return command
     return wrapper
@@ -51,9 +52,9 @@ class AutomodTree:
         return automod_rule
 
 
-  def get_command(self: Self, keyword: str) -> Optional[AutomodCommand]:
-    if not isinstance(keyword, str): raise TypeError(f"keyword: Must be an instance of {str.__name__}; not {keyword.__class__.__name__}")
-    return self.__command_map.get(keyword)
+  def get_command(self: Self, trigger: str) -> Optional[AutomodCommand]:
+    if not isinstance(trigger, str): raise TypeError(f"trigger: Must be an instance of {str.__name__}; not {trigger.__class__.__name__}")
+    return self.__command_map.get(trigger)
 
 
   async def toggle(self: Self, *commands: tuple[AutomodCommand], guild: Guild, active: bool) -> None:
@@ -70,7 +71,7 @@ class AutomodTree:
         event_type = AutoModRuleEventType.message_send,
         trigger = AutoModTrigger(
           type = AutoModRuleTriggerType.keyword,
-          keyword_filter = [command.keyword for command in commands]
+          keyword_filter = [command.trigger for command in commands]
         ),
         actions = [
           AutoModRuleAction(
@@ -83,10 +84,10 @@ class AutomodTree:
       self.__rule_id_map[guild.id]: int = rule.id
     if active:
       trigger: AutoModTrigger = AutoModTrigger(
-        keyword_filter = [keyword for keyword in rule.trigger.keyword_filter] + [command.keyword for command in commands if command.keyword not in rule.trigger.keyword_filter]
+        keyword_filter = [keyword for keyword in rule.trigger.keyword_filter] + [command.trigger for command in commands if command.trigger not in rule.trigger.keyword_filter]
       )
     else:
       trigger: AutoModTrigger = AutoModTrigger(
-        keyword_filter = [keyword for keyword in rule.trigger.keyword_filter if keyword not in [command.keyword for command in commands]]
+        keyword_filter = [keyword for keyword in rule.trigger.keyword_filter if keyword not in [command.trigger for command in commands]]
       )
     await rule.edit(trigger = trigger)

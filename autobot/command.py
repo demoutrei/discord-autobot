@@ -1,3 +1,4 @@
+from .enums import TriggerType
 from collections.abc import Coroutine
 from discord import AutoModAction, Guild, Member, Thread
 from discord.abc import GuildChannel
@@ -23,7 +24,7 @@ class AutomodCommand:
     await self.callback(**args)
   
   
-  def __init__(self: Self, *, name: str, callback: Coroutine, trigger: str) -> None:
+  def __init__(self: Self, *, name: str, callback: Coroutine, trigger: str, trigger_type: TriggerType = TriggerType.keyword) -> None:
     if not isinstance(name, str): raise TypeError(f"name: Must be an instance of {str.__name__}; not {name.__class__.__name__}")
     if not name.strip(): raise ValueError("name: Must not be an empty string")
     if not iscoroutinefunction(callback): raise TypeError(f"callback: Must be a coroutine")
@@ -31,8 +32,10 @@ class AutomodCommand:
     if not trigger.strip(): raise ValueError(f"trigger: Must not be an empty string")
     trigger: str = trigger.strip()
     if 60 < len(trigger): raise ValueError(f"trigger: Can only be up to 60 characters in length")
-    self.__trigger: str = trigger
+    if not isinstance(trigger_type, TriggerType): raise TypeError(f"type: Must be an instance of {TriggerType.__name__}; not {trigger_type.__class__.__name__}")
     self.__name: str = name
+    self.__trigger: str = trigger
+    self.__trigger_type: TriggerType = trigger_type
     self.callback: Coroutine = callback
 
 
@@ -44,3 +47,8 @@ class AutomodCommand:
   @property
   def trigger(self: Self) -> str:
     return self.__trigger
+
+
+  @property
+  def type(self: Self) -> TriggerType:
+    return self.__trigger_type
